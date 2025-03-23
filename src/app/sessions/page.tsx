@@ -3,55 +3,66 @@
 import { BackendRoutes } from "@/constants/routes/Backend";
 import { axios } from "@/lib/axios";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import { useState } from "react";
-import { AdminSessionCard } from "../../_components/AdminSessionCard";
+import { UserSessionCard } from "../_components/UserSessionCard";
 import { DeleteSessionDialog } from "./_components/DeleteSessionDialog";
 import { EditSessionDialog } from "./_components/EditSessionDialog";
 
 export default function AdminSessionsPage() {
   const queryClient = useQueryClient();
+  const { status } = useSession();
   const [deleteSession, setDeleteSession] = useState<Nullable<Session>>(null);
   const [editSession, setEditSession] = useState<Nullable<Session>>(null);
 
-  // Fetch sessions data
-  const { data: interviewSessions, isLoading } = useQuery({
-    queryKey: [BackendRoutes.SESSIONS],
+  const { data: me, isSuccess: isMeSuccess } = useQuery({
+    queryKey: [BackendRoutes.AUTH_ME],
     queryFn: async () =>
-      (await axios.get<GETAllSessionsResponse>(BackendRoutes.SESSIONS)).data,
+      (await axios.get<GETMeResponse>(BackendRoutes.AUTH_ME)).data,
+    enabled: status == "authenticated",
+  });
+
+  const { data: interviewSessions, isLoading } = useQuery({
+    queryKey: [BackendRoutes.USERS_ID_SESSIONS({ id: me?.data._id || "" })],
+    queryFn: async () =>
+      (
+        await axios.get<GETAllSessionsResponse>(
+          BackendRoutes.USERS_ID_SESSIONS({ id: me?.data._id || "" }),
+        )
+      ).data,
+    enabled: isMeSuccess,
   });
 
   const refreshSessionData = () => {
-    queryClient.invalidateQueries({ queryKey: [BackendRoutes.SESSIONS] });
+    queryClient.invalidateQueries({
+      queryKey: [BackendRoutes.USERS_ID_SESSIONS({ id: me?.data._id || "" })],
+    });
   };
-
-  // Loading state
-  if (isLoading)
-    return <p className="mt-16 text-center">Loading sessions...</p>;
 
   return (
     <main className="mx-auto mt-16 space-y-8">
-      <h1 className="text-center text-4xl font-bold">All Scheduled Sessions</h1>
+      <h1 className="text-center text-4xl font-bold">My Scheduled Sessions</h1>
 
       <div className="mx-auto max-h-[70vh] max-w-2xl space-y-2 overflow-y-auto pr-4">
-        {interviewSessions ? (
-          interviewSessions?.data.map((session) => (
-            <AdminSessionCard
+        {isLoading ? (
+          <p className="text-center">Loading sessions...</p>
+        ) : interviewSessions?.data.length ? (
+          interviewSessions.data.map((session) => (
+            <UserSessionCard
               key={session._id}
               title={session.company.name}
               description={session.company.description}
-              name={session.user.name}
-              tel={session.user.tel}
+              tel={session.company.tel}
               date={new Date(session.date)}
               onDelete={() => setDeleteSession(session)}
               onEdit={() => setEditSession(session)}
             />
           ))
         ) : (
-          <p>Theres nothing here.</p>
+          <p className="text-center">There&apos;s nothing here.</p>
         )}
       </div>
 
-      {/* Delete Confirmation Dialog */}
       {deleteSession ? (
         <DeleteSessionDialog
           session={deleteSession}
@@ -61,7 +72,6 @@ export default function AdminSessionsPage() {
         />
       ) : null}
 
-      {/* Edit Session Dialog */}
       {editSession ? (
         <EditSessionDialog
           session={editSession}
