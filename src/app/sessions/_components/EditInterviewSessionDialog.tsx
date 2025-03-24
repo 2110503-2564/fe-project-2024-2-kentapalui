@@ -14,6 +14,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/shadcn/form";
 import { Input } from "@/components/ui/shadcn/input";
 import {
@@ -27,11 +28,23 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const editInterviewSessionFormSchema = z.object({
-  company: z.string().nonempty(),
-  date: z.date(),
-});
-
+const editInterviewSessionFormSchema = z
+  .object({
+    company: z.string().nonempty(),
+    date: z.date(),
+  })
+  .refine(
+    (data) => {
+      const startDate = new Date("2022-05-10");
+      const endDate = new Date("2022-05-13");
+      return data.date >= startDate && data.date <= endDate;
+    },
+    {
+      message:
+        "Interview sessions can only be scheduled from May 10th to May 13th, 2022.",
+      path: ["date"],
+    },
+  );
 export type EditInterviewSessionFormSchema = z.infer<
   typeof editInterviewSessionFormSchema
 >;
@@ -119,28 +132,36 @@ export function EditInterviewSessionDialog({
                 )}
               />
 
-              <div className="grid grid-cols-4 items-center gap-4">
-                <FormLabel className="text-right">User</FormLabel>
-                <Input
-                  value={interviewSession.user.name}
-                  disabled
-                  className="col-span-3"
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="company"
+                render={({ field }) => (
+                  <FormItem className="grid grid-cols-4 items-center gap-4">
+                    <FormLabel className="text-right">User</FormLabel>
+                    <FormControl className="col-span-3">
+                      <Input value={interviewSession.user.name} disabled />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
                 name="date"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-center gap-4">
-                    <FormLabel className="text-right">Date</FormLabel>
-                    <div className="col-span-3">
-                      <DateTimePicker24h
-                        value={field.value}
-                        onChange={field.onChange}
-                        format="d MMM yyyy HH:mm"
-                      />
+                  <FormItem>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <FormLabel className="text-right">Date</FormLabel>
+                      <FormControl className="col-span-3">
+                        <DateTimePicker24h
+                          value={field.value}
+                          onChange={field.onChange}
+                          format="d MMM yyyy HH:mm"
+                        />
+                      </FormControl>
                     </div>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
