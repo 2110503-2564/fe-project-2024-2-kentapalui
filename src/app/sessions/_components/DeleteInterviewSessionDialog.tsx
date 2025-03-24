@@ -9,21 +9,20 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/shadcn/alert-dialog";
 
-interface DeleteDialogProps {
-  session: Session;
+interface DeleteInterviewSessionDialogProps {
+  interviewSession: InterviewSession;
   isOpen: boolean;
   isPending: boolean;
   onClose: () => void;
-  onDelete: (data: { _id: string }) => void;
+  onDelete: () => void;
 }
 
-export function DeleteSessionDialog({
-  session,
+export function DeleteInterviewSessionDialog({
   isOpen,
   isPending,
   onClose,
   onDelete,
-}: DeleteDialogProps) {
+}: DeleteInterviewSessionDialogProps) {
   return (
     <AlertDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <AlertDialogContent>
@@ -36,10 +35,7 @@ export function DeleteSessionDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => onDelete({ _id: session._id })}
-            disabled={isPending}
-          >
+          <AlertDialogAction onClick={() => onDelete()} disabled={isPending}>
             {isPending ? "Deleting..." : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>

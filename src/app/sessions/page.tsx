@@ -12,20 +12,20 @@ import { isAxiosError } from "axios";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { UserSessionCard } from "../_components/UserSessionCard";
-import { DeleteSessionDialog } from "./_components/DeleteSessionDialog";
+import { UserInterviewSessionCard } from "../_components/UserInterviewSessionCard";
+import { DeleteInterviewSessionDialog } from "./_components/DeleteInterviewSessionDialog";
 import {
-  EditSessionDialog,
-  EditSessionFormSchema,
-} from "./_components/EditSessionDialog";
+  EditInterviewSessionDialog,
+  EditInterviewSessionFormSchema,
+} from "./_components/EditInterviewSessionDialog";
 
-export default function UserSessionsPage() {
+export default function UserInterviewSessionsPage() {
   const queryClient = useQueryClient();
   const { status } = useSession();
-  const [SessionToDelete, setSessionToDelete] =
-    useState<Nullable<Session>>(null);
-  const [SessionToUpdate, setSessionToUpdate] =
-    useState<Nullable<Session>>(null);
+  const [interviewSessionToDelete, setInterviewSessionToDelete] =
+    useState<Nullable<InterviewSession>>(null);
+  const [interviewSessionToUpdate, setInterviewSessionToUpdate] =
+    useState<Nullable<InterviewSession>>(null);
 
   // Get current user data
   const {
@@ -49,7 +49,7 @@ export default function UserSessionsPage() {
         queryKey: [BackendRoutes.USERS_ID_SESSIONS({ id: userId })],
         queryFn: async () =>
           (
-            await axios.get<GETAllSessionsResponse>(
+            await axios.get<GETAllInterviewSessionsResponse>(
               BackendRoutes.USERS_ID_SESSIONS({ id: userId }),
             )
           ).data,
@@ -60,28 +60,33 @@ export default function UserSessionsPage() {
         queryFn: async () =>
           (await axios.get<GETAllCompaniesResponse>(BackendRoutes.COMPANIES))
             .data,
-        enabled: !SessionToUpdate,
+        enabled: !interviewSessionToUpdate,
       },
     ],
   });
 
-  const [sessionsQuery, companiesQuery] = queries;
+  const [interviewSessionsQuery, companiesQuery] = queries;
 
-  const interviewSessions = sessionsQuery?.data?.data;
-  const companies = companiesQuery?.data?.data;
-  const isSessionLoading = sessionsQuery?.isLoading;
+  const interviewSessions = interviewSessionsQuery?.data;
+  const companies = companiesQuery?.data;
+  const isInterviewSessionLoading = interviewSessionsQuery?.isLoading;
   const isCompaniesLoading = companiesQuery?.isLoading;
 
   // Refresh data helper function
-  const refreshSessionData = () => {
+  const refreshInterviewSessionData = () => {
     queryClient.invalidateQueries({
       queryKey: [BackendRoutes.USERS_ID_SESSIONS({ id: userId })],
     });
   };
 
-  // Update session mutation
-  const { mutate: updateSession, isPending: isUpdating } = useMutation({
-    mutationFn: async (data: { _id: string } & EditSessionFormSchema) => {
+  // Update interview session mutation
+  const {
+    mutate: updateInterviewSession,
+    isPending: isInterviewSessionUpdating,
+  } = useMutation({
+    mutationFn: async (
+      data: { _id: string } & EditInterviewSessionFormSchema,
+    ) => {
       await axios.put(BackendRoutes.SESSIONS_ID({ id: data._id }), data);
     },
     onMutate: () => {
@@ -90,8 +95,8 @@ export default function UserSessionsPage() {
     },
     onSuccess: () => {
       toast.success("Session updated successfully", { id: "update-session" });
-      setSessionToUpdate(null);
-      refreshSessionData();
+      setInterviewSessionToUpdate(null);
+      refreshInterviewSessionData();
     },
     onError: (error) => {
       toast.error("Failed to update session", {
@@ -103,14 +108,17 @@ export default function UserSessionsPage() {
     },
   });
 
-  // Delete session mutation
-  const { mutate: deleteSession, isPending: isDeleting } = useMutation({
+  // Delete interview session mutation
+  const {
+    mutate: deleteInterviewSession,
+    isPending: isInterviewSessionDeleting,
+  } = useMutation({
     mutationFn: (data: { _id: string }) =>
       axios.delete(BackendRoutes.SESSIONS_ID({ id: data._id })),
     onSuccess: () => {
       toast.success("Session delete successfully", { id: "delete-session" });
-      setSessionToDelete(null);
-      refreshSessionData();
+      setInterviewSessionToDelete(null);
+      refreshInterviewSessionData();
     },
     onError: (error) => {
       toast.error("Failed to delete session", {
@@ -143,16 +151,16 @@ export default function UserSessionsPage() {
     <main className="mx-auto mt-16 space-y-8">
       <h1 className="text-center text-4xl font-bold">My Scheduled Sessions</h1>
 
-      <div className="mx-auto max-h-[70vh] max-w-2xl space-y-2 overflow-y-auto pr-4">
-        {isSessionLoading ? (
+      <div className="mx-auto max-w-2xl space-y-2 overflow-y-auto pr-4">
+        {isInterviewSessionLoading ? (
           <p className="text-center">Loading sessions...</p>
-        ) : interviewSessions?.length ? (
-          interviewSessions.map((session) => (
-            <UserSessionCard
-              key={session._id}
-              session={session}
-              onDelete={() => setSessionToDelete(session)}
-              onEdit={() => setSessionToUpdate(session)}
+        ) : interviewSessions?.data.length ? (
+          interviewSessions.data.map((interviewSession) => (
+            <UserInterviewSessionCard
+              key={interviewSession._id}
+              interviewSession={interviewSession}
+              onDelete={() => setInterviewSessionToDelete(interviewSession)}
+              onEdit={() => setInterviewSessionToUpdate(interviewSession)}
             />
           ))
         ) : (
@@ -160,25 +168,27 @@ export default function UserSessionsPage() {
         )}
       </div>
 
-      {SessionToDelete ? (
-        <DeleteSessionDialog
-          session={SessionToDelete}
-          isOpen={!!SessionToDelete}
-          isPending={isDeleting}
-          onClose={() => setSessionToDelete(null)}
-          onDelete={(data) => deleteSession(data)}
+      {interviewSessionToDelete ? (
+        <DeleteInterviewSessionDialog
+          interviewSession={interviewSessionToDelete}
+          isOpen={!!interviewSessionToDelete}
+          isPending={isInterviewSessionDeleting}
+          onClose={() => setInterviewSessionToDelete(null)}
+          onDelete={() =>
+            deleteInterviewSession({ _id: interviewSessionToDelete._id })
+          }
         />
       ) : null}
 
-      {SessionToUpdate ? (
-        <EditSessionDialog
-          session={SessionToUpdate}
-          companies={companies}
-          isOpen={!!SessionToUpdate}
-          isPending={isUpdating}
+      {interviewSessionToUpdate ? (
+        <EditInterviewSessionDialog
+          interviewSession={interviewSessionToUpdate}
+          companies={companies?.data}
+          isOpen={!!interviewSessionToUpdate}
+          isPending={isInterviewSessionUpdating}
           isLoading={isCompaniesLoading}
-          onClose={() => setSessionToUpdate(null)}
-          onUpdate={(data) => updateSession(data)}
+          onClose={() => setInterviewSessionToUpdate(null)}
+          onUpdate={(data) => updateInterviewSession(data)}
         />
       ) : null}
     </main>

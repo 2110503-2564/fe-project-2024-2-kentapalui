@@ -5,18 +5,18 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/shadcn/dropdown-menu";
 import { Calendar, Phone, UserIcon } from "lucide-react";
-import { SessionCardInfo } from "./SessionCardInfo";
-import { SessionCardWithDropdown } from "./SessionCardWithDropdown";
+import { InterviewSessionCardInfo } from "./InterviewSessionCardInfo";
+import { InterviewSessionCardWithDropdown } from "./InterviewSessionCardWithDropdown";
 
 interface AdminSessionCardProps {
-  session: Session;
+  interviewSession: InterviewSession;
 
   onEdit?: () => void;
   onDelete?: () => void;
 }
 
 export const AdminSessionCard: React.FC<AdminSessionCardProps> = ({
-  session,
+  interviewSession,
   onEdit,
   onDelete,
 }) => {
@@ -34,17 +34,20 @@ export const AdminSessionCard: React.FC<AdminSessionCardProps> = ({
   );
 
   return (
-    <SessionCardWithDropdown
-      title={session.company.name}
-      description={session.company.description}
+    <InterviewSessionCardWithDropdown
+      title={interviewSession.company.name}
+      description={interviewSession.company.description}
       dropdownContent={dropdownContent}
     >
-      <SessionCardInfo icon={<UserIcon />} text={session.user.name} />
-      <SessionCardInfo icon={<Phone />} text={session.user.tel} />
-      <SessionCardInfo
-        icon={<Calendar />}
-        text={new Date(session.date).toLocaleString()}
+      <InterviewSessionCardInfo
+        icon={UserIcon}
+        text={interviewSession.user.name}
       />
-    </SessionCardWithDropdown>
+      <InterviewSessionCardInfo icon={Phone} text={interviewSession.user.tel} />
+      <InterviewSessionCardInfo
+        icon={Calendar}
+        text={new Date(interviewSession.date).toLocaleString()}
+      />
+    </InterviewSessionCardWithDropdown>
   );
 };

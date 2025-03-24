@@ -27,37 +27,39 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const editSessionFormSchema = z.object({
+const editInterviewSessionFormSchema = z.object({
   company: z.string().nonempty(),
   date: z.date(),
 });
 
-export type EditSessionFormSchema = z.infer<typeof editSessionFormSchema>;
+export type EditInterviewSessionFormSchema = z.infer<
+  typeof editInterviewSessionFormSchema
+>;
 
-interface EditDialogProps {
-  session: Session;
+interface EditInterviewSessionDialogProps {
+  interviewSession: InterviewSession;
   companies?: Array<Company>;
   isOpen: boolean;
   isPending: boolean;
   isLoading: boolean;
-  onUpdate: (data: { _id: string } & EditSessionFormSchema) => void;
+  onUpdate: (data: { _id: string } & EditInterviewSessionFormSchema) => void;
   onClose: () => void;
 }
 
-export function EditSessionDialog({
-  session,
+export function EditInterviewSessionDialog({
+  interviewSession,
   companies,
   isOpen,
   isPending,
   isLoading,
   onUpdate,
   onClose,
-}: EditDialogProps) {
-  const form = useForm<z.infer<typeof editSessionFormSchema>>({
-    resolver: zodResolver(editSessionFormSchema),
+}: EditInterviewSessionDialogProps) {
+  const form = useForm<z.infer<typeof editInterviewSessionFormSchema>>({
+    resolver: zodResolver(editInterviewSessionFormSchema),
     defaultValues: {
-      company: session.company.id,
-      date: new Date(session.date),
+      company: interviewSession.company.id,
+      date: new Date(interviewSession.date),
     },
   });
 
@@ -67,7 +69,7 @@ export function EditSessionDialog({
         <DialogContent className="sm:max-w-md">
           <form
             onSubmit={form.handleSubmit((data) => {
-              onUpdate({ _id: session._id, ...data });
+              onUpdate({ _id: interviewSession._id, ...data });
             })}
           >
             <DialogHeader>
@@ -87,7 +89,7 @@ export function EditSessionDialog({
                       <div className="col-span-3">
                         {isLoading ? (
                           <Input
-                            value={session.company.name}
+                            value={interviewSession.company.name}
                             disabled
                             className="w-full"
                           />
@@ -120,7 +122,7 @@ export function EditSessionDialog({
               <div className="grid grid-cols-4 items-center gap-4">
                 <FormLabel className="text-right">User</FormLabel>
                 <Input
-                  value={session.user.name}
+                  value={interviewSession.user.name}
                   disabled
                   className="col-span-3"
                 />

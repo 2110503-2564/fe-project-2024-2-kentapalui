@@ -1,12 +1,14 @@
-interface Session {
+interface InterviewSession {
   _id: string;
   company: Company;
   user: User;
   date: string;
 }
 
-interface GETAllSessionsResponse
+interface GETAllInterviewSessionsResponse
   extends WithPagination,
-    DefaultResponse<Array<Session>> {}
+    DefaultResponse<Array<InterviewSession>> {}
 
-type GETSessionsByUserResponse = DefaultResponse<Array<Session>>;
+type GETInterviewSessionsByUserResponse = DefaultResponse<
+  Array<InterviewSession>
+>;

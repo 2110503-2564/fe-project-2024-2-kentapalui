@@ -28,13 +28,13 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const createSessionFormSchema = z.object({
+const createInterviewSessionFormSchema = z.object({
   company: z.string().nonempty(),
   user: z.string().nonempty(),
   date: z.date(),
 });
 
-export default function CreateSessionPage() {
+export default function CreateInterviewSessionPage() {
   const { status } = useSession();
 
   const formDefaultValues = () => ({
@@ -43,8 +43,8 @@ export default function CreateSessionPage() {
     date: new Date(),
   });
 
-  const form = useForm<z.infer<typeof createSessionFormSchema>>({
-    resolver: zodResolver(createSessionFormSchema),
+  const form = useForm<z.infer<typeof createInterviewSessionFormSchema>>({
+    resolver: zodResolver(createInterviewSessionFormSchema),
     defaultValues: formDefaultValues(),
   });
 
@@ -72,14 +72,18 @@ export default function CreateSessionPage() {
     ],
   });
 
+  const [meQuery, companiesQuery] = queries;
+
+  const me = meQuery.data;
+  const companies = companiesQuery.data;
+
   const isLoading = queries.some((query) => query.isLoading);
   const isError = queries.some((query) => query.isError);
 
-  const me = queries[0].data;
-  const companies = queries[1].data?.data.data;
-
-  const { mutate: createSession } = useMutation({
-    mutationFn: async (data: z.infer<typeof createSessionFormSchema>) => {
+  const { mutate: createInterviewSession } = useMutation({
+    mutationFn: async (
+      data: z.infer<typeof createInterviewSessionFormSchema>,
+    ) => {
       return await axios.post(BackendRoutes.SESSIONS, data);
     },
     onMutate: () => {
@@ -108,7 +112,7 @@ export default function CreateSessionPage() {
       <main className="mx-auto mt-16">
         <form
           className="mx-auto max-w-sm space-y-6 rounded-xl bg-white px-4 py-8 drop-shadow-md"
-          onSubmit={form.handleSubmit((data) => createSession(data))}
+          onSubmit={form.handleSubmit((data) => createInterviewSession(data))}
         >
           <h1 className="text-center text-3xl font-bold">Book Session</h1>
           <FormField
@@ -127,8 +131,8 @@ export default function CreateSessionPage() {
                       <SelectValue placeholder="Select a Company" />
                     </SelectTrigger>
                     <SelectContent>
-                      {companies?.map((company) => (
-                        <SelectItem key={company.id} value={company.id}>
+                      {companies?.data.data.map((company, idx) => (
+                        <SelectItem key={idx} value={company.id}>
                           {company.name}
                         </SelectItem>
                       ))}

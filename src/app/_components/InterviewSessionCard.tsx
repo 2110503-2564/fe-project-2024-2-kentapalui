@@ -1,10 +1,10 @@
-interface SessionCardProps {
+interface InterviewSessionCardProps {
   title: string;
   description: string;
   children?: React.ReactNode;
 }
 
-export const SessionCard: React.FC<SessionCardProps> = ({
+export const SessionCard: React.FC<InterviewSessionCardProps> = ({
   title,
   description,
   children,

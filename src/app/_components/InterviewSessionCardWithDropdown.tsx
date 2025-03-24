@@ -5,15 +5,15 @@ import {
 } from "@/components/ui/shadcn/dropdown-menu";
 import { Ellipsis } from "lucide-react";
 
-interface SessionCardWithDropdownProps {
+interface InterviewSessionCardWithDropdownProps {
   title: string;
   description: string;
   children?: React.ReactNode;
   dropdownContent?: React.ReactElement<typeof DropdownMenuContent>;
 }
 
-export const SessionCardWithDropdown: React.FC<
-  SessionCardWithDropdownProps
+export const InterviewSessionCardWithDropdown: React.FC<
+  InterviewSessionCardWithDropdownProps
 > = ({ title, description, children, dropdownContent }) => {
   return (
     <div className="border-input flex w-full justify-between rounded-sm border-1 p-4">
