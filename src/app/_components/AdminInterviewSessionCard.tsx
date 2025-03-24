@@ -4,7 +4,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/shadcn/dropdown-menu";
-import { Calendar, Phone, UserIcon } from "lucide-react";
+import { CalendarIcon, PhoneIcon, UserIcon } from "lucide-react";
 import { InterviewSessionCardInfo } from "./InterviewSessionCardInfo";
 import { InterviewSessionCardWithDropdown } from "./InterviewSessionCardWithDropdown";
 
@@ -43,9 +43,12 @@ export const AdminSessionCard: React.FC<AdminSessionCardProps> = ({
         icon={UserIcon}
         text={interviewSession.user.name}
       />
-      <InterviewSessionCardInfo icon={Phone} text={interviewSession.user.tel} />
       <InterviewSessionCardInfo
-        icon={Calendar}
+        icon={PhoneIcon}
+        text={interviewSession.user.tel}
+      />
+      <InterviewSessionCardInfo
+        icon={CalendarIcon}
         text={new Date(interviewSession.date).toLocaleString()}
       />
     </InterviewSessionCardWithDropdown>

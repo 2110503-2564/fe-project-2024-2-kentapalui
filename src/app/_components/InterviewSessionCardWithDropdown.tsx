@@ -3,7 +3,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/shadcn/dropdown-menu";
-import { Ellipsis } from "lucide-react";
+import { EllipsisIcon } from "lucide-react";
 
 interface InterviewSessionCardWithDropdownProps {
   title: string;
@@ -31,7 +31,7 @@ export const InterviewSessionCardWithDropdown: React.FC<
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className="h-fit w-fit rounded-full p-2 transition-colors hover:bg-slate-100 focus:outline-none">
-            <Ellipsis />
+            <EllipsisIcon />
           </button>
         </DropdownMenuTrigger>
         {dropdownContent || <DropdownMenuContent />}
