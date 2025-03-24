@@ -8,31 +8,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/shadcn/alert-dialog";
-import { BackendRoutes } from "@/constants/routes/Backend";
-import { axios } from "@/lib/axios";
-import { useMutation } from "@tanstack/react-query";
 
 interface DeleteDialogProps {
   session: Session;
   isOpen: boolean;
+  isPending: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onDelete: (data: { _id: string }) => void;
 }
 
 export function DeleteSessionDialog({
   session,
   isOpen,
+  isPending,
   onClose,
-  onSuccess,
+  onDelete,
 }: DeleteDialogProps) {
-  const { mutate: deleteSession, isPending: isDeleting } = useMutation({
-    mutationFn: () =>
-      axios.delete(BackendRoutes.SESSIONS_ID({ id: session._id })),
-    onSuccess: () => {
-      onSuccess();
-    },
-  });
-
   return (
     <AlertDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <AlertDialogContent>
@@ -46,10 +37,10 @@ export function DeleteSessionDialog({
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={() => deleteSession()}
-            disabled={isDeleting}
+            onClick={() => onDelete({ _id: session._id })}
+            disabled={isPending}
           >
-            {isDeleting ? "Deleting..." : "Delete"}
+            {isPending ? "Deleting..." : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

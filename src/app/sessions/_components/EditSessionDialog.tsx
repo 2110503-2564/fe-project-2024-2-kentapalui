@@ -23,32 +23,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/shadcn/select";
-import { BackendRoutes } from "@/constants/routes/Backend";
-import { axios } from "@/lib/axios";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
-
-interface EditDialogProps {
-  session: Session;
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
-}
 
 const editSessionFormSchema = z.object({
   company: z.string().nonempty(),
   date: z.date(),
 });
 
+export type EditSessionFormSchema = z.infer<typeof editSessionFormSchema>;
+
+interface EditDialogProps {
+  session: Session;
+  companies?: Array<Company>;
+  isOpen: boolean;
+  isPending: boolean;
+  isLoading: boolean;
+  onUpdate: (data: { _id: string } & EditSessionFormSchema) => void;
+  onClose: () => void;
+}
+
 export function EditSessionDialog({
   session,
+  companies,
   isOpen,
+  isPending,
+  isLoading,
+  onUpdate,
   onClose,
-  onSuccess,
 }: EditDialogProps) {
   const form = useForm<z.infer<typeof editSessionFormSchema>>({
     resolver: zodResolver(editSessionFormSchema),
@@ -58,48 +61,13 @@ export function EditSessionDialog({
     },
   });
 
-  // Fetch companies for dropdown
-  const { data: companies, isLoading } = useQuery({
-    queryKey: [BackendRoutes.COMPANIES],
-    queryFn: () => axios.get<GETAllCompaniesResponse>(BackendRoutes.COMPANIES),
-    enabled: isOpen, // Only fetch when dialog is open
-  });
-
-  // Update session mutation
-  const { mutate: updateSession, isPending } = useMutation({
-    mutationFn: async (data: z.infer<typeof editSessionFormSchema>) => {
-      await axios.put(BackendRoutes.SESSIONS_ID({ id: session._id }), {
-        company: data.company,
-        date: data.date,
-      });
-    },
-    onMutate: () => {
-      toast.dismiss();
-      toast.loading("Updating session...", { id: "update-session" });
-    },
-    onSuccess: () => {
-      toast.success("Session updated successfully", { id: "update-session" });
-      onClose();
-      onSuccess();
-    },
-    onError: (error) => {
-      toast.error("Failed to update session", {
-        id: "update-session",
-        description: isAxiosError(error)
-          ? error.response?.data.error
-          : "Something went wrong",
-      });
-    },
-  });
-
   return (
     <Form {...form}>
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
         <DialogContent className="sm:max-w-md">
           <form
             onSubmit={form.handleSubmit((data) => {
-              console.log("Button clicked");
-              updateSession(data);
+              onUpdate({ _id: session._id, ...data });
             })}
           >
             <DialogHeader>
@@ -132,7 +100,7 @@ export function EditSessionDialog({
                               <SelectValue placeholder="Select a company" />
                             </SelectTrigger>
                             <SelectContent>
-                              {companies?.data.data.map((company) => (
+                              {companies?.map((company) => (
                                 <SelectItem
                                   key={company.id}
                                   value={company.id.toString()}

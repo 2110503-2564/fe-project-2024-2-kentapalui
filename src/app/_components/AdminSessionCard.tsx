@@ -9,22 +9,14 @@ import { SessionCardInfo } from "./SessionCardInfo";
 import { SessionCardWithDropdown } from "./SessionCardWithDropdown";
 
 interface AdminSessionCardProps {
-  title: string;
-  description: string;
-  name: string;
-  tel: string;
-  date: Date;
+  session: Session;
 
   onEdit?: () => void;
   onDelete?: () => void;
 }
 
 export const AdminSessionCard: React.FC<AdminSessionCardProps> = ({
-  title,
-  description,
-  name,
-  tel,
-  date,
+  session,
   onEdit,
   onDelete,
 }) => {
@@ -43,13 +35,16 @@ export const AdminSessionCard: React.FC<AdminSessionCardProps> = ({
 
   return (
     <SessionCardWithDropdown
-      title={title}
-      description={description}
+      title={session.company.name}
+      description={session.company.description}
       dropdownContent={dropdownContent}
     >
-      <SessionCardInfo icon={<UserIcon />} text={name} />
-      <SessionCardInfo icon={<Phone />} text={tel} />
-      <SessionCardInfo icon={<Calendar />} text={date.toLocaleString()} />
+      <SessionCardInfo icon={<UserIcon />} text={session.user.name} />
+      <SessionCardInfo icon={<Phone />} text={session.user.tel} />
+      <SessionCardInfo
+        icon={<Calendar />}
+        text={new Date(session.date).toLocaleString()}
+      />
     </SessionCardWithDropdown>
   );
 };
