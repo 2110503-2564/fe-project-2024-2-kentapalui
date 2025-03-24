@@ -24,6 +24,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueries } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { useSession } from "next-auth/react";
+import { useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -48,10 +49,13 @@ const createInterviewSessionFormSchema = z
   );
 
 export default function CreateInterviewSessionPage() {
+  const params = useParams<{ companyId: Array<string> }>();
   const { status } = useSession();
 
+  const companyId = params.companyId ? (params.companyId[0] ?? "") : "";
+
   const formDefaultValues = () => ({
-    company: "",
+    company: companyId,
     user: "",
     date: new Date(),
   });
@@ -79,8 +83,21 @@ export default function CreateInterviewSessionPage() {
       },
       {
         queryKey: [BackendRoutes.COMPANIES],
-        queryFn: () =>
-          axios.get<GETAllCompaniesResponse>(BackendRoutes.COMPANIES),
+        queryFn: async () => {
+          const result = await axios.get<GETAllCompaniesResponse>(
+            BackendRoutes.COMPANIES,
+          );
+
+          if (
+            !result.data.data.find(
+              (company) => company.id == form.getValues().company,
+            )
+          ) {
+            form.reset({ ...formDefaultValues(), company: "" });
+          }
+
+          return result.data;
+        },
       },
     ],
   });
@@ -144,7 +161,7 @@ export default function CreateInterviewSessionPage() {
                       <SelectValue placeholder="Select a Company" />
                     </SelectTrigger>
                     <SelectContent>
-                      {companies?.data.data.map((company, idx) => (
+                      {companies?.data.map((company, idx) => (
                         <SelectItem key={idx} value={company.id}>
                           {company.name}
                         </SelectItem>
