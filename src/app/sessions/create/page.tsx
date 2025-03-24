@@ -116,7 +116,7 @@ export default function CreateSessionPage() {
             name="company"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Comapany</FormLabel>
+                <FormLabel>Company</FormLabel>
                 <FormControl>
                   <Select
                     value={field.value}
@@ -139,7 +139,16 @@ export default function CreateSessionPage() {
               </FormItem>
             )}
           />
-          <Input value={me?.name ?? ""} disabled />
+          <FormField
+            control={form.control}
+            name="user"
+            render={() => (
+              <FormItem>
+                <FormLabel className="text-right">Your Name</FormLabel>
+                <Input value={me?.name ?? ""} disabled />
+              </FormItem>
+            )}
+          ></FormField>
           <FormField
             control={form.control}
             name="date"
