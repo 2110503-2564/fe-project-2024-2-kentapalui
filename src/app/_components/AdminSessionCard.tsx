@@ -5,7 +5,8 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/shadcn/dropdown-menu";
 import { Calendar, Phone, UserIcon } from "lucide-react";
-import { SessionCardInfo, SessionCardWithDropdown } from "./SessionCard";
+import { SessionCardInfo } from "./SessionCardInfo";
+import { SessionCardWithDropdown } from "./SessionCardWithDropdown";
 
 interface AdminSessionCardProps {
   title: string;
@@ -16,29 +17,6 @@ interface AdminSessionCardProps {
 
   onEdit?: () => void;
   onDelete?: () => void;
-}
-function formatDate(date: Date) {
-  const day = String(date.getDate()).padStart(2, "0");
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-
-  return `${day} ${month} ${year} ${hours}:${minutes}`;
 }
 
 export const AdminSessionCard: React.FC<AdminSessionCardProps> = ({
@@ -71,7 +49,7 @@ export const AdminSessionCard: React.FC<AdminSessionCardProps> = ({
     >
       <SessionCardInfo icon={<UserIcon />} text={name} />
       <SessionCardInfo icon={<Phone />} text={tel} />
-      <SessionCardInfo icon={<Calendar />} text={formatDate(date)} />
+      <SessionCardInfo icon={<Calendar />} text={date.toLocaleString()} />
     </SessionCardWithDropdown>
   );
 };
