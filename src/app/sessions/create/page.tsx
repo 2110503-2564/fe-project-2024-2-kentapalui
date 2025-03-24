@@ -28,11 +28,24 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const createInterviewSessionFormSchema = z.object({
-  company: z.string().nonempty(),
-  user: z.string().nonempty(),
-  date: z.date(),
-});
+const createInterviewSessionFormSchema = z
+  .object({
+    company: z.string().nonempty(),
+    user: z.string().nonempty(),
+    date: z.date(),
+  })
+  .refine(
+    (data) => {
+      const startDate = new Date("2022-05-10");
+      const endDate = new Date("2022-05-13");
+      return data.date >= startDate && data.date <= endDate;
+    },
+    {
+      message:
+        "Interview sessions can only be scheduled from May 10th to May 13th, 2022.",
+      path: ["date"],
+    },
+  );
 
 export default function CreateInterviewSessionPage() {
   const { status } = useSession();
@@ -149,10 +162,12 @@ export default function CreateInterviewSessionPage() {
             render={() => (
               <FormItem>
                 <FormLabel className="text-right">Your Name</FormLabel>
-                <Input value={me?.name ?? ""} disabled />
+                <FormControl>
+                  <Input value={me?.name ?? ""} disabled />
+                </FormControl>
               </FormItem>
             )}
-          ></FormField>
+          />
           <FormField
             control={form.control}
             name="date"
@@ -166,6 +181,7 @@ export default function CreateInterviewSessionPage() {
                     format="d MMM yyyy HH:mm"
                   />
                 </div>
+                <FormMessage />
               </FormItem>
             )}
           />

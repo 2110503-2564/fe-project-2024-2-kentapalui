@@ -151,7 +151,7 @@ export default function UserInterviewSessionsPage() {
     <main className="mx-auto mt-16 space-y-8">
       <h1 className="text-center text-4xl font-bold">My Scheduled Sessions</h1>
 
-      <div className="mx-auto max-w-2xl space-y-2 overflow-y-auto pr-4">
+      <div className="mx-auto h-[70vh] max-w-2xl space-y-2 overflow-y-auto pr-4">
         {isInterviewSessionLoading ? (
           <p className="text-center">Loading sessions...</p>
         ) : interviewSessions?.data.length ? (
