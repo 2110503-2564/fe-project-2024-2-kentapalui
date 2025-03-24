@@ -19,7 +19,7 @@ import {
   EditSessionFormSchema,
 } from "./_components/EditSessionDialog";
 
-export default function AdminSessionsPage() {
+export default function UserSessionsPage() {
   const queryClient = useQueryClient();
   const { status } = useSession();
   const [SessionToDelete, setSessionToDelete] =
